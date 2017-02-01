@@ -1,0 +1,23 @@
+version: '2'
+services:
+  app:
+    image: ruby:2.3.1
+    command: bin/setup
+    working_dir: /usr/src/app
+    environment:
+      TMPDIR: /usr/src/app/tmp
+      HISTFILE: /usr/src/app/tmp/.bash_history
+      BUNDLE_PATH: /usr/src/app/.bundle
+      BUNDLE_CONFIG: /usr/src/app/bundle/config
+      PUBSUB_EMULATOR_HOST: "pubsub:8769"
+      PROJECT_ID: "test"
+    volumes:
+      - .:/usr/src/app
+    links:
+      - pubsub
+
+  pubsub:
+    image: google/cloud-sdk
+    command: gcloud beta emulators pubsub start
+    expose:
+      - 8769 
