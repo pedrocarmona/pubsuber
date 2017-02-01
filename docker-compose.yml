@@ -8,7 +8,7 @@ services:
       TMPDIR: /usr/src/app/tmp
       HISTFILE: /usr/src/app/tmp/.bash_history
       BUNDLE_PATH: /usr/src/app/.bundle
-      BUNDLE_CONFIG: /usr/src/app/bundle/config
+      BUNDLE_CONFIG: /usr/src/app/.bundle/config
       PUBSUB_EMULATOR_HOST: "pubsub:8769"
       PROJECT_ID: "test"
     volumes:
@@ -20,4 +20,4 @@ services:
     image: google/cloud-sdk
     command: gcloud beta emulators pubsub start
     expose:
-      - 8769 
+      - 8769
