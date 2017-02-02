@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pub_suber/version"
 
 module PubSuber
