@@ -9,7 +9,7 @@ services:
       HISTFILE: /usr/src/app/tmp/.bash_history
       BUNDLE_PATH: /usr/src/app/.bundle
       BUNDLE_CONFIG: /usr/src/app/.bundle/config
-      PUBSUB_EMULATOR_HOST: "pubsub:8769"
+      PUBSUB_EMULATOR_HOST: "pubsub:8080"
       PROJECT_ID: "test"
     volumes:
       - .:/usr/src/app
@@ -18,6 +18,6 @@ services:
 
   pubsub:
     image: google/cloud-sdk
-    command: gcloud beta emulators pubsub start
+    command: gcloud beta emulators pubsub start --host-port=pubsub:8080
     expose:
-      - 8769
+      - "8080"
