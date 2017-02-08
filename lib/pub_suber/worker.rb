@@ -57,18 +57,22 @@ module PubSuber
 
     def single_run
       job = reserve_job
-      invoke_job if job
+      if job
+        invoke_job(job)
+      else
+        logger.debug "No jobs to process"
+      end
     end
 
-    def invoke_job
+    def invoke_job(job)
       logger.debug "RUNNING"
       job.invoke_job
       logger.debug "COMPLETED"
-      job.acknowledge
+      job.acknowledge!
       return true # did work
     rescue StandardError => error
       logger.error "FAILED with #{error}"
-      job.acknowledge
+      job.acknowledge!
       handle_failed_job(job, error)
       return false # work failed
     end
@@ -106,7 +110,13 @@ module PubSuber
     # If there are no jobs in the queue, proceeds to the next queue
     # The order of queues specifies the priority
     def reserve_job
-      queues.lazy.select { |queue| @driver.reserve(topic: queue) }.first
+      job = nil
+      queues.each do |queue|
+        logger.info "Trying to reserve job in queue #{queue}"
+        job = @driver.reserve(topic: queue)
+        break if job
+      end
+      job
     end
   end
 end
