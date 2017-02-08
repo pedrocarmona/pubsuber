@@ -22,17 +22,18 @@ module PubSuber
 
     def reserve(topic:, message_deadline: @message_deadline)
       subscription = subscription(topic, message_deadline)
-      ReservedMessage.new(subscription, message_deadline)
+      message = subscription.pull(max: 1).first
+      ReservedMessage.new(message, message_deadline) if message
     end
 
     private
 
     def subscription(topic_name, message_deadline)
       topic = @pubsub.topic(topic_name, autocreate: true)
-      subscription = topic.subscription(topic)
-      return subscription if subscription.exists?
-      topic.subscribe(topic_name, message_deadline: message_deadline)
-      topic.subscription(topic)
+      subscription = topic.subscription(topic_name)
+      return subscription if subscription && subscription.exists?
+      topic.subscribe(topic_name, deadline: message_deadline)
+      topic.subscription(topic_name)
     end
   end
 end

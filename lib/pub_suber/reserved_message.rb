@@ -2,8 +2,10 @@
 
 module PubSuber
   class ReservedMessage
-    def initialize(subscription, message_deadline)
-      @message = subscription.pull(max: 1).first
+    def initialize(message, message_deadline)
+      @logger = Settings.logger
+      @logger.info("ReservedMessage: #{message}")
+      @message = message
       @message_deadline = message_deadline
       @background = background_extend_deadline
     end
@@ -13,7 +15,7 @@ module PubSuber
       Thread.new do
         loop {
           sleep renew_deadline_interval
-          Log.info("Extended message deadline: #{@message.attributes}")
+          @logger.info("Extended message deadline: #{@message.attributes}")
           @message.delay!(@message_deadline)
         }
       end
@@ -22,7 +24,7 @@ module PubSuber
     def acknowledge!
       @background.exit
       @message.acknowledge!
-      Log.info("ACKED #{@message.attributes}.")
+      @logger.info("ACKED #{@message.attributes}.")
     end
   end
 end
