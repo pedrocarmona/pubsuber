@@ -2,7 +2,7 @@
 
 module PubSuber
   # TODO: should control the lifecycle (processing, failed,
-  # failed_and_rescheduled, successful)
+  # buried, successful)
   # TODO: should save metrics, kind of job, status,
   class Worker
     attr_accessor :max_attempts, :sleep_delay, :queues, :name, :logger
@@ -12,8 +12,8 @@ module PubSuber
         options.fetch(:sleep_delay, Settings.sleep_delay)
       options[:max_attempts] =
         options.fetch(:max_attempts, Settings.max_attempts)
-      options[:failed_jobs_queue_name] =
-        options.fetch(:failed_jobs_queue_name, Settings.failed_jobs_queue_name)
+      options[:buried_jobs_queue_name] =
+        options.fetch(:buried_jobs_queue_name, Settings.buried_jobs_queue_name)
       options[:queues] = options.fetch(:queues)
       new(options)
     end
@@ -81,7 +81,7 @@ module PubSuber
       if can_reschedule?
         reschedule(job)
       else
-        failed(job)
+        bury(job)
       end
     end
 
@@ -99,10 +99,10 @@ module PubSuber
       @driver.enqueue(message: job, topic: job.queue_name)
     end
 
-    # send to failed queue
-    def failed(job)
-      logger.debug "failed moved to #{failed_jobs_queue_name}"
-      @driver.enqueue(message: job, topic: failed_jobs_queue_name)
+    # send to buried queue
+    def bury(job)
+      logger.debug "Burying #{job} in queue #{buried_jobs_queue_name}"
+      @driver.enqueue(message: job, topic: buried_jobs_queue_name)
     end
 
     # Goes through the queues and reserves only one job
