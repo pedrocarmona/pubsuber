@@ -13,7 +13,7 @@ module PubSuber
     MESSAGE_DEADLINE = 600
     FAILED_JOBS_QUEUE_NAME = "failed"
 
-    attr_accessor :project_id, :logger, :max_attempts, :sleep_delay, 
+    attr_accessor :project_id, :logger, :max_attempts, :sleep_delay,
                   :message_deadline, :failed_jobs_queue_name
 
     def initialize
