@@ -9,7 +9,7 @@ module PubSuber
     end
 
     def enqueue(message:, topic:) #:nodoc:
-      topic = @pubsub.topic(topic)
+      topic = @pubsub.topic(topic, autocreate: true)
       topic.publish(message)
     end
 
