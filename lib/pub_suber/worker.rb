@@ -4,23 +4,13 @@ module PubSuber
   # TODO: should control the lifecycle (processing, failed,
   # buried, successful)
   # TODO: should save metrics, kind of job, status,
+  # parse workflow file
   class Worker
-    attr_accessor :max_attempts, :sleep_delay, :queues, :name, :logger
-
-    def self.build(options = {})
-      options[:sleep_delay] =
-        options.fetch(:sleep_delay, Settings.sleep_delay)
-      options[:max_attempts] =
-        options.fetch(:max_attempts, Settings.max_attempts)
-      options[:buried_jobs_queue_name] =
-        options.fetch(:buried_jobs_queue_name, Settings.buried_jobs_queue_name)
-      options[:queues] = options.fetch(:queues)
-      new(options)
-    end
+    attr_accessor :sleep_delay, :queues, :name, :logger
 
     def initialize(options = {})
-      @sleep_delay = options[:sleep_delay]
-      @max_attempts = options[:max_attempts]
+      options[:sleep_delay] =
+        options.fetch(:sleep_delay, Settings.sleep_delay)
       @queues = options[:queues]
       @logger = Settings.logger
       @driver = Driver.new
@@ -56,67 +46,35 @@ module PubSuber
     end
 
     def single_run
-      job = reserve_job
+      job = @driver.reserve_one_job(queues)
       if job
         invoke_job(job)
       else
-        logger.debug "No jobs to process"
+        logger.info "No jobs to process"
       end
     end
 
     def invoke_job(job)
-      logger.debug "RUNNING"
-      job.invoke_job
-      logger.debug "COMPLETED"
+      performed = perform(job)
+      if performed
+        @driver.successful(job)
+      elsif job.can_reschedule?
+        @driver.reschedule(job)
+      else
+        @driver.bury(job)
+      end
       job.acknowledge!
+      result
+    end
+
+    def perform(job)
+      logger.debug "RUNNING"
+      job.perform
+      logger.debug "COMPLETED"
       return true # did work
     rescue StandardError => error
       logger.error "FAILED with #{error}"
-      job.acknowledge!
-      handle_failed_job(job, error)
-      return false # work failed
-    end
-
-    def handle_failed_job(job)
-      if can_reschedule?
-        reschedule(job)
-      else
-        bury(job)
-      end
-    end
-
-    def can_reschedule?
-      job.attempts += 1
-      job.attempts < max_job_attempts(job)
-    end
-
-    def max_job_attempts(job)
-      job.max_attempts || max_attempts
-    end
-
-    # Reschedule the job in the future (when a job fails).
-    def reschedule(job)
-      @driver.enqueue(message: job, topic: job.queue_name)
-    end
-
-    # send to buried queue
-    def bury(job)
-      logger.debug "Burying #{job} in queue #{buried_jobs_queue_name}"
-      @driver.enqueue(message: job, topic: buried_jobs_queue_name)
-    end
-
-    # Goes through the queues and reserves only one job
-    # If there is one jobs in first queue, then returns it
-    # If there are no jobs in the queue, proceeds to the next queue
-    # The order of queues specifies the priority
-    def reserve_job
-      job = nil
-      queues.each do |queue|
-        logger.info "Trying to reserve job in queue #{queue}"
-        job = @driver.reserve(topic: queue)
-        break if job
-      end
-      job
+      return false # work FAILED
     end
   end
 end

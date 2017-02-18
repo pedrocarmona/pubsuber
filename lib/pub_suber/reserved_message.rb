@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module PubSuber
+  # TODO: exponencial backoff
   class ReservedMessage
     def initialize(message, message_deadline)
       @logger = Settings.logger
@@ -25,6 +26,10 @@ module PubSuber
       @background.exit
       @message.acknowledge!
       @logger.info("ACKED #{@message.attributes}.")
+    end
+
+    def job
+      Job.new(message.attributes, self)
     end
   end
 end

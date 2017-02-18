@@ -12,9 +12,11 @@ module PubSuber
     MAX_ATTEMPTS = 3
     MESSAGE_DEADLINE = 600
     BURIED_JOBS_QUEUE_NAME = "buried"
+    SUCESSFUL_JOBS_QUEUE_NAME = "sucessful"
 
     attr_accessor :project_id, :logger, :max_attempts, :sleep_delay,
-                  :message_deadline, :failed_jobs_queue_name
+                  :message_deadline, :buried_jobs_queue_name,
+                  :sucessful_jobs_queue_name
 
     def initialize
       @logger = Logger.new(STDOUT)
@@ -22,6 +24,7 @@ module PubSuber
       @sleep_delay = SLEEP_DELAY
       @max_attempts = MAX_ATTEMPTS
       @message_deadline = MESSAGE_DEADLINE
+      @sucessful_jobs_queue_name = SUCESSFUL_JOBS_QUEUE_NAME
       @buried_jobs_queue_name = BURIED_JOBS_QUEUE_NAME
     end
   end

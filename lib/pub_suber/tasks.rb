@@ -5,7 +5,7 @@ namespace :jobs do
   task :work do
     require "pub_suber"
     queues = (ENV["QUEUES"] || ENV["QUEUE"] || "").split(",")
-    worker = PubSuber::Worker.build(queues: queues)
+    worker = PubSuber::Worker.new(queues: queues)
     worker.start
   end
 
