@@ -8,7 +8,7 @@ module PubSuber
     include Singleton
     LOG_LEVEL = Logger::INFO
     # worker
-    SLEEP_DELAY = 15
+    SLEEP_DELAY = 5
     MAX_ATTEMPTS = 3
     MESSAGE_DEADLINE = 600
     BURIED_JOBS_QUEUE_NAME = "buried"

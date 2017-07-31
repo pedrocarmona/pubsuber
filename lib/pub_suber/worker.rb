@@ -6,13 +6,11 @@ module PubSuber
   # TODO: should save metrics, kind of job, status,
   # parse workflow file
   class Worker
-    attr_accessor :sleep_delay, :queues, :name, :logger
+    attr_accessor :sleep_delay, :queues, :name
 
     def initialize(options = {})
-      options[:sleep_delay] =
-        options.fetch(:sleep_delay, Settings.sleep_delay)
+      @sleep_delay = options.fetch(:sleep_delay, Settings.sleep_delay)
       @queues = options[:queues]
-      @logger = Settings.logger
       @driver = Driver.new
       @name = "PubSuberWorker##{object_id}"
     end
@@ -64,7 +62,7 @@ module PubSuber
         @driver.bury(job)
       end
       job.acknowledge!
-      result
+      performed
     end
 
     def perform(job)

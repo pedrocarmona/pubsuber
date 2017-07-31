@@ -13,8 +13,8 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %(Background jobs with PubSub.)
   spec.description   = %(
-    Ruby asynchronous background jobs using PubSub messages and topics
-    to distribute jobs between workers.
+    Ruby asynchronous background jobs using PubSub.
+    Uses messages as jobs and topics as queues to distribute jobs between workers.
   )
   spec.homepage      = "http://pedrocarmona.github.io/pubsuber"
   spec.license       = "MIT"

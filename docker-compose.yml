@@ -11,6 +11,7 @@ services:
       BUNDLE_CONFIG: /usr/src/app/.bundle/config
       PUBSUB_EMULATOR_HOST: "pubsub:8080"
       PROJECT_ID: "test"
+      QUEUE: "test"
     volumes:
       - .:/usr/src/app
     links:

@@ -24,7 +24,7 @@ module PubSuber
     end
 
     def perform
-      implementation_class = @item["class"].constantize
+      implementation_class = find_class!(@item["class"])
       implementation = klass.new(@item)
       register_attempt
       implementation.perform
@@ -59,7 +59,15 @@ module PubSuber
     end
 
     def to_h
-      @item
+      array = @item.flat_map { |key, value| [key.to_sym, value] }
+      Hash[*array]
+    end
+
+    private
+
+    def find_class!(class_name)
+      fail(NotFoundError.new(self, name)) unless Object.const_defined?(class_name)
+      Object.const_get(class_name)
     end
   end
 end

@@ -28,7 +28,7 @@ module PubSuber
     end
 
     def job
-      Job.new(message.attributes, self)
+      Job.new(@message.attributes, self)
     end
   end
 end
