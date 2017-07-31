@@ -4,8 +4,7 @@ module PubSuber
   # TODO: exponencial backoff
   class ReservedMessage
     def initialize(message, message_deadline)
-      @logger = Settings.logger
-      @logger.info("ReservedMessage: #{message}")
+      logger.info("ReservedMessage: #{message.attributes}")
       @message = message
       @message_deadline = message_deadline
       @background = background_extend_deadline
@@ -16,7 +15,7 @@ module PubSuber
       Thread.new do
         loop {
           sleep renew_deadline_interval
-          @logger.info("Extended message deadline: #{@message.attributes}")
+          logger.info("Extended message deadline: #{@message.attributes}")
           @message.delay!(@message_deadline)
         }
       end
@@ -25,7 +24,7 @@ module PubSuber
     def acknowledge!
       @background.exit
       @message.acknowledge!
-      @logger.info("ACKED #{@message.attributes}.")
+      logger.info("ACKED #{@message.attributes}.")
     end
 
     def job

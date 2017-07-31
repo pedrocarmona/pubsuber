@@ -11,4 +11,7 @@ require "pub_suber/worker"
 require "pub_suber/railtie" if defined?(Rails)
 
 module PubSuber
+  def logger
+    Settings.logger
+  end
 end

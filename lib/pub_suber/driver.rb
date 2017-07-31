@@ -37,19 +37,19 @@ module PubSuber
 
     # Publish in a queue the successful job.
     def successful(job)
-      logger.info "Publish successful #{job}"
+      logger.info "Publish successful job:#{job}"
       enqueue(message: job, topic: Settings.sucessful_jobs_queue_name )
     end
 
     # Reschedule the job in the future (when a job fails).
     def reschedule(job)
-      logger.info "Publish rescheduled #{job}"
+      logger.info "Publish rescheduled job:#{job}"
       enqueue(message: job, topic: job.queue_name)
     end
 
     # send to buried queue
     def bury(job)
-      logger.info "Publish buried #{job}"
+      logger.info "Publish buried job:#{job}"
       enqueue(message: job, topic: Settings.buried_jobs_queue_name )
     end
 
